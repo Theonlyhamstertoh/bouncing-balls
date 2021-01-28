@@ -6,29 +6,49 @@ let ctx = canvas.getContext('2d');
 
 
 
+let colorArray = [ 
+    '#7FB069',
+    '#FFFBBD',
+    '#E6AA68',
+    '#CA3C25',
+    '#1D1A05'];
 
-function randomColor() {
-    let hexValue = '123456789ABCDEF';
-    let color = '#';
-    for(let i = 0; i < 6; i++) {
-        color += hexValue[Math.floor(Math.random() * hexValue.length)]; 
-    }
-    return color;
+
+
+let mouse = {
+    x: undefined,
+    y: undefined
 }
 
+let maxRadius = 60;
+let minRadius = 2;
+window.addEventListener('mousemove', function(e) {
+    mouse.x = e.x;
+    mouse.y = e.y;
+    console.log(mouse.x, mouse.y);
+})
 let circleArray = [];
-for(let i = 0; i < 100; i++) {
-    
-    let radius = Math.round(Math.random() * 50) + 5;
-    let x = Math.round(Math.random() * (innerWidth - (radius * 2)) + radius);
-    let y = Math.round(Math.random() * (innerHeight- (radius * 2)) + radius);
-    let speedX = Math.round(Math.random() * 8);
-    let speedY =  Math.round(Math.random() * 8);
-    circleArray.push(new Circle(x, y, speedX, speedY, radius))
-    
+initialize();
+function initialize() {
+    circleArray = [];
+    for(let i = 0; i < 600; i++) {   
+        let radius = Math.round(Math.random() * 10) + 5;
+        let x = Math.round(Math.random() * (innerWidth - (radius * 2)) + radius);
+        let y = Math.round(Math.random() * (innerHeight- (radius * 2)) + radius);
+        let speedX = Math.round(Math.random() * 3);
+        let speedY =  Math.round(Math.random() * 3);
+        circleArray.push(new Circle(x, y, speedX, speedY, radius))
+        
+    }
 }
-console.log(circleArray);
-ctx.fillStyle = randomColor();
+
+window.addEventListener('resize', function() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    initialize();
+})
+
 function Circle(x, y, speedX, speedY, radius) {
     console.log('passed')
     this.x = x;
@@ -36,13 +56,17 @@ function Circle(x, y, speedX, speedY, radius) {
     this.speedX = speedX;
     this.speedY = speedY;
     this.radius = radius;
-
+    this.value = this.radius;
+    this.color = colorArray[Math.floor(Math.random() * colorArray.length)];
+ 
+    
     
 
     //Creates a circle and color it
     this.draw = () => {
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
+        ctx.fillStyle = this.color;
         ctx.fill();
        
     }
@@ -65,6 +89,16 @@ function Circle(x, y, speedX, speedY, radius) {
         this.x += this.speedX;
         this.y += this.speedY;
 
+        //interactivity
+        if (Math.abs(mouse.x - this.x) < 100 && Math.abs(mouse.y - this.y) < 100) {
+            if(this.radius <= maxRadius){
+                this.radius += 1;
+        }
+        } else if(this.radius > this.value) {
+            this.radius -= minRadius;
+
+        }
+
         this.draw();
     }
 }
@@ -76,6 +110,7 @@ function animate() {
 
     for(let i = 0; i < circleArray.length; i++) {
         circleArray[i].update();
+        
     }
 
    
